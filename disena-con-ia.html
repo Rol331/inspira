@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="es-PE">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Diseña tu espacio con IA (demo) | Inspira Estudio de Interiorismo</title>
+  <meta name="description" content="Demo: sube una foto de tu ambiente y obtén una propuesta de diseño de interiores generada con inteligencia artificial.">
+  <meta name="theme-color" content="#1170d2">
+  <link rel="canonical" href="https://estudioinspira.pe/disena-con-ia.html">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="es_PE">
+  <meta property="og:site_name" content="Inspira Estudio de Interiorismo">
+  <meta property="og:title" content="Diseña tu espacio con IA (demo) | Inspira Estudio de Interiorismo">
+  <meta property="og:description" content="Demo: sube una foto de tu ambiente y obtén una propuesta de diseño de interiores generada con inteligencia artificial.">
+  <meta property="og:image" content="https://estudioinspira.pe/assets/img/cocina-3.webp">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@1,500&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+
+  <!-- Google Analytics 4: reemplazar G-XXXXXXXXXX por el ID real -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script>
+
+  <meta name="robots" content="noindex">
+</head>
+<body>
+  <a class="skip-link" href="#main">Saltar al contenido</a>
+
+  <!-- ===== Header ===== -->
+  <header class="header">
+    <div class="container header__inner">
+      <a class="logo" href="index.html" aria-label="Inspira Estudio de Interiorismo — Inicio">
+        <span class="logo__name">Inspira</span><span class="logo__tag">Estudio de interiorismo</span>
+      </a>
+      <nav class="nav" aria-label="Principal">
+        <ul class="nav__list">
+          <li><a class="nav__link" href="index.html">Inicio</a></li>
+          <li><a class="nav__link" href="nosotros.html">Nosotros</a></li>
+          <li><a class="nav__link" href="servicios.html">Servicios</a></li>
+          <li><a class="nav__link" href="proyectos.html">Proyectos</a></li>
+          <li><a class="nav__link" href="contacto.html">Contacto</a></li>
+        </ul>
+      </nav>
+      <a class="btn btn--primary btn--sm header__cta" href="contacto.html">Cuéntanos tu proyecto</a>
+      <button class="burger" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobile-nav"><span></span></button>
+    </div>
+  </header>
+  <nav class="mobile-nav" id="mobile-nav" aria-label="Menú móvil">
+    <a class="m-link" href="index.html">Inicio <span aria-hidden="true">→</span></a>
+    <a class="m-link" href="nosotros.html">Nosotros <span aria-hidden="true">→</span></a>
+    <a class="m-link" href="servicios.html">Servicios <span aria-hidden="true">→</span></a>
+    <a class="m-link" href="proyectos.html">Proyectos <span aria-hidden="true">→</span></a>
+    <a class="m-link" href="contacto.html">Contacto <span aria-hidden="true">→</span></a>
+    <a class="btn btn--primary btn--block" href="contacto.html">Cuéntanos tu proyecto</a>
+    <div class="mobile-nav__info">Jr. Pedro Gálvez 987, El Tambo, Huancayo<br>+51 982 219 856</div>
+  </nav>
+
+  <main id="main">
+    <section class="page-hero">
+      <img src="assets/img/sala-6-sm.webp" srcset="assets/img/sala-6-sm.webp 800w, assets/img/sala-6.webp 1800w" sizes="100vw" alt="" fetchpriority="high">
+      <div class="container">
+        <span class="demo-tag">Demo · Inteligencia artificial</span>
+        <h1>Diseña tu espacio <span class="accent">con IA</span></h1>
+        <p>Sube una foto de tu ambiente, elige un estilo y mira en segundos una propuesta de cómo podría transformarse.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container ia-grid">
+        <div class="ia-panel">
+          <div class="ia-block">
+            <p class="ia-step">1 · Sube tu foto</p>
+            <label class="ia-upload" for="ia-file">
+              <input id="ia-file" type="file" accept="image/*">
+              <span class="ia-upload__empty">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3.5"/><path d="M8 5l1.5-2h5L16 5"/></svg>
+                <span><strong>Toca para tomar o subir una foto</strong><br>de tu cocina, sala, dormitorio o baño</span>
+              </span>
+              <img id="ia-preview" alt="Foto subida de tu ambiente" hidden>
+              <span class="ia-upload__change" hidden>Cambiar foto</span>
+            </label>
+          </div>
+          <div class="ia-block">
+            <p class="ia-step">2 · Tipo de ambiente</p>
+            <div class="chips"><label class="chip"><input type="radio" name="room" value="cocina" data-label="Cocina" checked><span>Cocina</span></label><label class="chip"><input type="radio" name="room" value="sala" data-label="Sala / Comedor"><span>Sala / Comedor</span></label><label class="chip"><input type="radio" name="room" value="dormitorio" data-label="Dormitorio"><span>Dormitorio</span></label><label class="chip"><input type="radio" name="room" value="bano" data-label="Baño"><span>Baño</span></label><label class="chip"><input type="radio" name="room" value="closet" data-label="Clóset"><span>Clóset</span></label><label class="chip"><input type="radio" name="room" value="bar" data-label="Bar / Entretenimiento"><span>Bar / Entretenimiento</span></label></div>
+          </div>
+          <div class="ia-block">
+            <p class="ia-step">3 · Estilo</p>
+            <div class="style-grid"><label class="style-opt"><input type="radio" name="style" value="moderno" data-label="Moderno" checked><span>Moderno<small>Líneas limpias, cuarzo</small></span></label><label class="style-opt"><input type="radio" name="style" value="nordico" data-label="Nórdico"><span>Nórdico<small>Roble claro, blanco</small></span></label><label class="style-opt"><input type="radio" name="style" value="industrial" data-label="Industrial"><span>Industrial<small>Metal negro, concreto</small></span></label><label class="style-opt"><input type="radio" name="style" value="minimalista" data-label="Minimalista"><span>Minimalista<small>Sin tiradores, neutro</small></span></label><label class="style-opt"><input type="radio" name="style" value="calido" data-label="Cálido natural"><span>Cálido natural<small>Nogal, tonos tierra</small></span></label><label class="style-opt"><input type="radio" name="style" value="lujo" data-label="Lujo contemporáneo"><span>Lujo contemporáneo<small>Mármol, dorado</small></span></label></div>
+          </div>
+          <button id="ia-generate" class="btn btn--primary btn--block" type="button" style="margin-top:26px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>
+            Generar diseño
+          </button>
+          <p class="ia-msg" role="alert"></p>
+          <p class="ia-disclaimer">La primera vez se te pedirá iniciar sesión en Puter, el servicio que procesa la imagen en esta demo. Tu foto solo se usa para generar la propuesta.</p>
+        </div>
+
+        <div class="ia-stage" aria-live="polite">
+          <div class="ia-placeholder">
+            <div class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/></svg></div>
+            <h2 style="font-size:1.3rem">Tu nueva propuesta aparecerá aquí</h2>
+            <p style="margin:0">Funciona mejor con fotos horizontales, bien iluminadas y tomadas desde una esquina del ambiente.</p>
+          </div>
+          <div class="ia-loading" hidden>
+            <div class="ia-spinner" aria-hidden="true"></div>
+            <p id="ia-loading-text">Analizando tu espacio…</p>
+            <small>Puede tardar entre 10 y 40 segundos.</small>
+          </div>
+          <div class="ia-result" hidden>
+            <div class="ba">
+              <img id="ia-after" alt="Después: propuesta de diseño generada con IA">
+              <img id="ia-before" class="ba__before" alt="Antes: foto original de tu ambiente">
+              <span class="ba__label ba__label--before">Tu foto</span>
+              <span class="ba__label ba__label--after">Propuesta IA</span>
+              <span class="ba__handle" aria-hidden="true"></span>
+              <input class="ba__range" type="range" min="0" max="100" value="50" aria-label="Comparar foto original y propuesta">
+            </div>
+            <div style="padding:20px">
+              <h2 style="font-size:1.3rem;margin-bottom:.3em">¿Te gusta cómo podría quedar?</h2>
+              <p style="color:var(--gray-600);margin:0">Nuestro equipo puede convertir esta idea en un proyecto real, diseñado a medida para tu espacio.</p>
+              <div class="ia-actions">
+                <a id="ia-wa" class="btn btn--wa" href="#" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.4-.5c.2-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.1.2 2.1 3.2 5.1 4.5.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.4zM12 21.8c-1.8 0-3.5-.5-5-1.4l-.4-.2-3.7 1 1-3.6-.2-.4C2.7 15.6 2.2 13.8 2.2 12 2.2 6.6 6.6 2.2 12 2.2c2.6 0 5.1 1 6.9 2.9 1.8 1.8 2.9 4.3 2.9 6.9 0 5.4-4.4 9.8-9.8 9.8zm8.4-18.2C18.1 1.3 15.2.1 12 .1 5.5.1.1 5.4.1 12c0 2.1.5 4.1 1.6 5.9L0 24l6.3-1.7c1.7.9 3.7 1.4 5.7 1.4 6.6 0 11.9-5.3 11.9-11.9 0-3.2-1.2-6.2-3.5-8.4z"/></svg> Solicita una evaluación</a>
+                <button id="ia-download" class="btn btn--outline" type="button">Descargar imagen</button>
+                <button id="ia-again" class="btn btn--outline" type="button">Probar otro estilo</button>
+              </div>
+              <p class="ia-disclaimer">Imagen referencial generada con inteligencia artificial. El diseño final, los materiales y el presupuesto se definen tras la evaluación técnica de tu espacio.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== Footer ===== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div>
+          <a class="logo logo--light" href="index.html" aria-label="Inspira — Inicio"><span class="logo__name">Inspira</span><span class="logo__tag">Estudio de interiorismo</span></a>
+          <p style="margin-top:1.2rem">Transformamos espacios mediante el diseño, la funcionalidad y la expresión visual. Huancayo, Perú.</p>
+          <div class="socials">
+            <a href="https://www.instagram.com/Inspira__estudio" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></a>
+            <a href="https://www.tiktok.com/@estudio.inspira" target="_blank" rel="noopener" aria-label="TikTok"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 5.8A4.3 4.3 0 0115.5 3h-3.1v12.4a2.6 2.6 0 11-2.6-2.6c.3 0 .5 0 .8.1V9.7a5.7 5.7 0 105 5.7V9a7.4 7.4 0 004.3 1.4V7.3s-1.9.1-3.3-1.5z"/></svg></a>
+            <a href="mailto:contacto@estudioinspira.pe" aria-label="Correo electrónico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg></a>
+          </div>
+        </div>
+        <div>
+          <h4>Navegación</h4>
+          <ul class="footer__links">
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="nosotros.html">Nosotros</a></li>
+            <li><a href="servicios.html">Servicios</a></li>
+            <li><a href="proyectos.html">Proyectos</a></li>
+            <li><a href="contacto.html">Contacto</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Servicios</h4>
+          <ul class="footer__links">
+            <li><a href="servicios.html#diseno">Diseño de interiores</a></li>
+            <li><a href="servicios.html#mobiliario">Cocinas a medida</a></li>
+            <li><a href="servicios.html#mobiliario">Clósets y muebles</a></li>
+            <li><a href="servicios.html#integral">Proyecto integral</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Showroom</h4>
+          <p>Jr. Pedro Gálvez 987,<br>El Tambo, Huancayo</p>
+          <p><a href="#" data-wa data-wa-loc="footer">+51 982 219 856</a><br><a href="mailto:contacto@estudioinspira.pe">contacto@estudioinspira.pe</a></p>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© <span data-year>2026</span> Inspira Estudio de Interiorismo. Todos los derechos reservados.</span>
+        <span>Huancayo · Junín · Perú</span>
+      </div>
+    </div>
+  </footer>
+
+  <a class="wa-float" href="#" data-wa data-wa-loc="float" aria-label="Escríbenos por WhatsApp">
+    <span class="wa-float__tip">¿Hablamos de tu proyecto?</span>
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.4-.5c.2-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.1.2 2.1 3.2 5.1 4.5.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.4zM12 21.8c-1.8 0-3.5-.5-5-1.4l-.4-.2-3.7 1 1-3.6-.2-.4C2.7 15.6 2.2 13.8 2.2 12 2.2 6.6 6.6 2.2 12 2.2c2.6 0 5.1 1 6.9 2.9 1.8 1.8 2.9 4.3 2.9 6.9 0 5.4-4.4 9.8-9.8 9.8zm8.4-18.2C18.1 1.3 15.2.1 12 .1 5.5.1.1 5.4.1 12c0 2.1.5 4.1 1.6 5.9L0 24l6.3-1.7c1.7.9 3.7 1.4 5.7 1.4 6.6 0 11.9-5.3 11.9-11.9 0-3.2-1.2-6.2-3.5-8.4z"/></svg>
+  </a>
+
+  <script src="assets/js/main.js" defer></script>
+  <script src="https://js.puter.com/v2/"></script>
+  <script src="assets/js/ia-demo.js" defer></script>
+</body>
+</html>
