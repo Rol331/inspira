@@ -473,3 +473,15 @@ body.nav-open { overflow: hidden; }
 .ia-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
 .ia-disclaimer { font-size: .8rem; color: var(--gray-400); margin-top: 14px; }
 .demo-tag { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.35); color: #fff; font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; padding: 5px 12px; border-radius: 999px; margin-bottom: 14px; }
+
+/* Enlace "Diseña con IA" en el menú */
+.nav__spark { width: 14px; height: 14px; display: inline-block; vertical-align: -2px; margin-right: 5px; color: var(--green); }
+.nav__link--ia { color: var(--teal); }
+.m-link--ia { color: var(--teal); }
+.m-link--ia .nav__spark { width: 18px; height: 18px; vertical-align: -1px; margin-right: 8px; }
+@media (min-width: 992px) and (max-width: 1199px) {
+  .header__inner { gap: 12px; }
+  .nav__link { padding: 10px 9px; font-size: .86rem; }
+  .nav__link::after { left: 9px; right: 9px; }
+  .header__cta { padding: 10px 14px; font-size: .82rem; }
+}
