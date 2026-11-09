@@ -10,21 +10,63 @@
   var MODEL = "gemini-nano-banana-2.1";
   var MAX_SIDE = 1536;
 
+  // Parámetros definidos por Inspira (ver "Parametros para IA INSPIRA ESTUDIO.pdf")
   var ROOMS = {
     cocina: "kitchen",
-    sala: "living room / dining room",
-    dormitorio: "bedroom",
-    bano: "bathroom",
-    closet: "walk-in closet / wardrobe area",
-    bar: "home bar / entertainment area"
+    sala: "living room",
+    comedor: "dining room",
+    bano: "bathroom"
   };
   var STYLES = {
-    moderno: "modern contemporary style with clean lines, matte cabinetry, quartz countertops and warm LED accent lighting",
-    nordico: "Scandinavian style with light oak wood, white surfaces, natural textiles and soft daylight",
-    industrial: "industrial loft style with black metal details, dark wood, concrete textures and pendant lights",
-    minimalista: "minimalist style with handleless furniture, neutral palette, hidden storage and uncluttered surfaces",
-    calido: "warm natural style with walnut wood, beige and earth tones, linen fabrics and indirect warm lighting",
-    lujo: "luxury contemporary style with marble, brass accents, glass display cabinets and layered lighting"
+    moderno: "modern style with straight, clean lines",
+    nordico: "Nordic / Scandinavian style with light woods and white",
+    industrial: "industrial style with black metal and concrete-like textures",
+    minimalista: "minimalist style with handleless furniture and uncluttered surfaces",
+    calido: "warm natural style with earth tones and organic textures",
+    lujo: "luxury contemporary style with strongly veined surfaces and metallic touches",
+    clasico: "modern classic / neoclassical style with subtle moldings"
+  };
+  var COLORS = {
+    claros: "light and luminous tones (white, pearl, bone white)",
+    neutros: "warm neutral tones (beige, sand, taupe)",
+    oscuros: "dark contrast (anthracite, graphite gray, black)",
+    tierra: "earth tones (mocha, caramel, soft terracotta)",
+    acentos: "color accents (olive green, petrol blue)"
+  };
+  var FINISHES = {
+    melamina: "smooth matte anti-fingerprint melamine",
+    "madera-clara": "light textured wood (oak or ash type)",
+    "madera-oscura": "dark textured wood (walnut or wengue type)",
+    gloss: "high-gloss finish with vertical grooved / slatted fronts"
+  };
+  var FORMATS = {
+    cerrada: "a closed kitchen (enclosed by walls, separate from other rooms)",
+    abierta: "an open American-style kitchen integrated with the adjacent living/dining area"
+  };
+  var LAYOUTS = {
+    lineal: "single-wall linear layout",
+    paralelo: "parallel / galley layout with two facing runs",
+    ele: "L-shaped layout",
+    u: "U-shaped layout",
+    g: "G-shaped layout (U-shape plus a partial fourth run)",
+    isla: "layout with a central island",
+    peninsula: "layout with a peninsula"
+  };
+  var MATERIALS = {
+    cuarzo: "pure white or Calacatta-type quartz",
+    granito: "dark granite or natural stone",
+    marmol: "marble with pronounced veining",
+    microcemento: "microcement / polished concrete",
+    sinterizada: "sintered stone"
+  };
+  var FOCAL = {
+    campana: "a decorative statement range hood",
+    backsplash: "an impactful backsplash (hydraulic tiles, zellige, herringbone or a continuous stone slab)",
+    "isla-contraste": "a contrasting central island with a waterfall countertop or a cabinet finish different from the perimeter",
+    vitrina: "a breakfast cabinet or illuminated glass display cabinet",
+    lamparas: "large-format pendant lamps over the island or peninsula",
+    farmhouse: "a farmhouse sink area by the window with brass/copper designer faucet and exposed apron front",
+    estanteria: "an accent wall or open shelving"
   };
 
   var $ = function (s) { return document.querySelector(s); };
@@ -88,6 +130,17 @@
   });
   upload.addEventListener("drop", function (e) { if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
 
+  // Campos condicionales: mostrar opciones de cocina solo cuando se selecciona cocina
+  var cocinaBlocks = document.querySelectorAll(".ia-cocina-only");
+  var roomRadios = document.querySelectorAll('input[name="room"]');
+  function updateCocinaFields() {
+    var sel = $('input[name="room"]:checked');
+    var show = sel && sel.value === "cocina";
+    for (var ci = 0; ci < cocinaBlocks.length; ci++) cocinaBlocks[ci].hidden = !show;
+  }
+  for (var ri = 0; ri < roomRadios.length; ri++) roomRadios[ri].addEventListener("change", updateCocinaFields);
+  updateCocinaFields();
+
   // Paso 1: verificar que la foto sea un ambiente interior
   function isInterior(dataUrl) {
     var q = "Look at this image. Answer with a single word, YES or NO: is it a photo of an indoor room or " +
@@ -101,18 +154,44 @@
   }
 
   // Paso 2: rediseñar con Gemini (prompt cerrado: solo interiorismo)
-  function buildPrompt(room, style) {
-    return "Redesign this " + ROOMS[room] + " interior photo in a " + STYLES[style] + ". " +
-      "Keep exactly the same room architecture, camera angle, perspective, walls, windows, doors, ceiling height and proportions. " +
-      "Replace furniture, custom-made cabinetry, finishes, materials, decor and lighting to create a professionally designed, " +
-      "functional and realistic interior that could actually be built. Natural daylight, elegant natural colors, no oversaturation. " +
+  function sel(name) {
+    var el = $('input[name="' + name + '"]:checked');
+    return el ? { value: el.value, label: el.dataset.label } : { value: "", label: "" };
+  }
+
+  function buildPrompt(o) {
+    var p = "Redesign this " + ROOMS[o.room] + " interior photo in a " + STYLES[o.style] + ". " +
+      "Color palette: " + COLORS[o.color] + ". " +
+      "Furniture and cabinetry finish: " + FINISHES[o.finish] + ". ";
+    if (o.room === "cocina") {
+      p += "Make it " + FORMATS[o.format] + ", with cabinetry arranged in a " + LAYOUTS[o.layout] +
+        " that fits within the existing walls. Countertops and work surfaces in " + MATERIALS[o.material] + ". ";
+      if (FOCAL[o.focal]) p += "Make " + FOCAL[o.focal] + " the focal point of the design. ";
+    }
+    return p + "Keep exactly the same room architecture, camera angle, perspective, windows, doors, ceiling height and proportions. " +
+      "Replace furniture, custom-made cabinetry, finishes, decor and lighting to create a professionally designed, " +
+      "functional and realistic interior that could actually be built. Natural daylight, realistic and elegant color rendering, no oversaturation. " +
+      "Respect the requested materials exactly: do not change materials just to fit the color palette; apply the palette through paint, textiles and accessories instead. " +
       "Do not add people, text, logos or watermarks. Output one photorealistic interior photograph.";
+  }
+
+  // Resumen en español para WhatsApp
+  function summary(o) {
+    var lines = ["• Ambiente: " + o.labels.room, "• Estilo: " + o.labels.style, "• Gama de color: " + o.labels.color, "• Acabado: " + o.labels.finish];
+    if (o.room === "cocina") {
+      lines.push("• Formato: " + o.labels.format, "• Distribución: " + o.labels.layout, "• Mesada: " + o.labels.material);
+      if (FOCAL[o.focal]) lines.push("• Elemento protagónico: " + o.labels.focal);
+    }
+    return lines.join("\n");
   }
 
   btn.addEventListener("click", function () {
     clearError();
-    var room = ($('input[name="room"]:checked') || {}).value;
-    var style = ($('input[name="style"]:checked') || {}).value;
+    var o = { labels: {} };
+    ["room", "style", "color", "finish", "format", "layout", "material", "focal"].forEach(function (k) {
+      var v = sel(k); o[k] = v.value; o.labels[k] = v.label;
+    });
+    var room = o.room, style = o.style;
     if (!original) return showError("Primero sube una foto de tu ambiente.");
     if (!room || !style) return showError("Elige el tipo de ambiente y un estilo.");
     if (typeof puter === "undefined") return showError("No se pudo cargar el servicio de IA. Revisa tu conexión y recarga la página.");
@@ -123,9 +202,9 @@
 
     isInterior(original.dataUrl).then(function (ok) {
       if (!ok) throw { code: "not_interior" };
-      loadingText.textContent = "Diseñando tu " + $('input[name="room"]:checked').dataset.label.toLowerCase() +
-        " en estilo " + $('input[name="style"]:checked').dataset.label + "…";
-      return puter.ai.txt2img(buildPrompt(room, style), {
+      loadingText.textContent = "Diseñando tu " + o.labels.room.toLowerCase() + " en estilo " + o.labels.style +
+        ", paleta " + o.labels.color.toLowerCase() + "…";
+      return puter.ai.txt2img(buildPrompt(o), {
         model: MODEL,
         input_image: original.dataUrl,
         input_image_mime_type: "image/jpeg",
@@ -136,21 +215,19 @@
       $("#ia-before").src = original.dataUrl;
       $("#ia-after").src = img.src;
       $("#ia-download").dataset.src = img.src;
-      var styleLabel = $('input[name="style"]:checked').dataset.label;
-      var roomLabel = $('input[name="room"]:checked').dataset.label;
       $("#ia-wa").href = "https://wa.me/51982219856?text=" + encodeURIComponent(
-        "Hola Inspira 👋, probé el diseñador con IA de su web y me gustó la propuesta de " +
-        roomLabel.toLowerCase() + " en estilo " + styleLabel + ". Quisiera solicitar una evaluación.");
+        "Hola Inspira 👋, probé el diseñador con IA de su web y me gustó esta propuesta:\n\n" +
+        summary(o) + "\n\nQuisiera solicitar una evaluación.");
       $(".ba__range").value = 50;
       $(".ba").style.setProperty("--pos", "50%");
       show("result");
       if (window.innerWidth < 992) document.querySelector(".ia-stage").scrollIntoView({ behavior: "smooth", block: "start" });
-      if (typeof window.gtag === "function") window.gtag("event", "ia_design_generated", { room: room, style: style });
+      if (typeof window.gtag === "function") window.gtag("event", "ia_design_generated", { room: room, style: style, color: o.color, finish: o.finish });
     }).catch(function (e) {
       show("placeholder");
       var code = (e && (e.code || (e.error && e.error.code))) || "";
       var text = String((e && (e.message || (e.error && e.error.message))) || "");
-      if (code === "not_interior") showError("Esta demo solo funciona con fotos de ambientes interiores (cocina, sala, dormitorio, baño…). Prueba con otra foto.");
+      if (code === "not_interior") showError("Esta demo solo funciona con fotos de ambientes interiores (cocina, sala, comedor o baño). Prueba con otra foto.");
       else if (/moderation|flagged/i.test(code + text)) showError("La imagen no pudo procesarse por los filtros de contenido. Prueba con otra foto de tu ambiente.");
       else if (/insufficient|funds|402/i.test(code + text)) showError("La cuenta de Puter no tiene saldo suficiente para generar la imagen.");
       else showError("No pudimos generar el diseño en este momento. Inténtalo nuevamente en unos segundos.");

@@ -472,6 +472,9 @@ body.nav-open { overflow: hidden; }
 .ia-result .ba img:first-child { position: relative; height: auto; }
 .ia-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
 .ia-disclaimer { font-size: .8rem; color: var(--gray-400); margin-top: 14px; }
+.ia-cocina-only[hidden] { display: none; }
+.ia-cocina-only { animation: fadeSlideIn .3s ease; }
+@keyframes fadeSlideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
 .demo-tag { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.35); color: #fff; font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; padding: 5px 12px; border-radius: 999px; margin-bottom: 14px; }
 
 /* Enlace "Diseña con IA" en el menú */
@@ -485,3 +488,4 @@ body.nav-open { overflow: hidden; }
   .nav__link::after { left: 9px; right: 9px; }
   .header__cta { padding: 10px 14px; font-size: .82rem; }
 }
+.ia-hint { font-size: .82rem; color: var(--gray-600); margin: -4px 0 10px; }
