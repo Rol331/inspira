@@ -160,12 +160,15 @@
   }
 
   function buildPrompt(o) {
-    var p = "Redesign this " + ROOMS[o.room] + " interior photo in a " + STYLES[o.style] + ". " +
+    var p = "Redesign the " + ROOMS[o.room] + " in the first image (a real interior photo) in a " + STYLES[o.style] + ". " +
       "Color palette: " + COLORS[o.color] + ". " +
       "Furniture and cabinetry finish: " + FINISHES[o.finish] + ". ";
     if (o.room === "cocina") {
       p += "Make it " + FORMATS[o.format] + ", with cabinetry arranged in a " + LAYOUTS[o.layout] +
         " that fits within the existing walls. Countertops and work surfaces in " + MATERIALS[o.material] + ". ";
+      if (o.layoutRef) p += "The second image is only a top-view floor plan diagram of the desired kitchen layout " +
+        "(position of sink, cooktop and fridge forming the work triangle). Follow that arrangement, adapted to the room in the photo, " +
+        "but do not draw the diagram, lines or symbols in the result. ";
       if (FOCAL[o.focal]) p += "Make " + FOCAL[o.focal] + " the focal point of the design. ";
     }
     return p + "Keep exactly the same room architecture, camera angle, perspective, windows, doors, ceiling height and proportions. " +
@@ -173,6 +176,25 @@
       "functional and realistic interior that could actually be built. Natural daylight, realistic and elegant color rendering, no oversaturation. " +
       "Respect the requested materials exactly: do not change materials just to fit the color palette; apply the palette through paint, textiles and accessories instead. " +
       "Do not add people, text, logos or watermarks. Output one photorealistic interior photograph.";
+  }
+
+  // Esquema de distribución (del PDF de parámetros) como imagen de referencia para la IA.
+  // Se convierte a JPEG sobre fondo blanco para enviarlo como data URI junto a la foto.
+  function layoutReference(o) {
+    if (o.room !== "cocina" || !o.layout) return Promise.resolve(null);
+    return new Promise(function (resolve) {
+      var img = new Image();
+      img.onload = function () {
+        var c = document.createElement("canvas");
+        c.width = img.naturalWidth; c.height = img.naturalHeight;
+        var ctx = c.getContext("2d");
+        ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, c.width, c.height);
+        ctx.drawImage(img, 0, 0);
+        resolve(c.toDataURL("image/jpeg", 0.9));
+      };
+      img.onerror = function () { resolve(null); }; // sin esquema, se usa solo la descripción en texto
+      img.src = "assets/img/layouts/" + o.layout + ".webp";
+    });
   }
 
   // Resumen en español para WhatsApp
@@ -204,12 +226,15 @@
       if (!ok) throw { code: "not_interior" };
       loadingText.textContent = "Diseñando tu " + o.labels.room.toLowerCase() + " en estilo " + o.labels.style +
         ", paleta " + o.labels.color.toLowerCase() + "…";
-      return puter.ai.txt2img(buildPrompt(o), {
-        model: MODEL,
-        input_image: original.dataUrl,
-        input_image_mime_type: "image/jpeg",
-        ratio: closestRatio(original.w, original.h),
-        quality: "1K"
+      return layoutReference(o).then(function (ref) {
+        o.layoutRef = !!ref;
+        return puter.ai.txt2img(buildPrompt(o), {
+          model: MODEL,
+          input_images: ref ? [original.dataUrl, ref] : [original.dataUrl],
+          input_image_mime_type: "image/jpeg",
+          ratio: closestRatio(original.w, original.h),
+          quality: "1K"
+        });
       });
     }).then(function (img) {
       $("#ia-before").src = original.dataUrl;

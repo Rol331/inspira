@@ -489,3 +489,11 @@ body.nav-open { overflow: hidden; }
   .header__cta { padding: 10px 14px; font-size: .82rem; }
 }
 .ia-hint { font-size: .82rem; color: var(--gray-600); margin: -4px 0 10px; }
+.layout-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+@media (min-width: 420px) { .layout-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 992px) { .layout-grid { grid-template-columns: repeat(2, 1fr); } }
+.layout-opt input { position: absolute; opacity: 0; pointer-events: none; }
+.layout-opt span { display: flex; flex-direction: column; gap: 6px; height: 100%; padding: 8px 8px 10px; border-radius: 12px; border: 1.5px solid var(--gray-100); background: #fff; cursor: pointer; font-weight: 700; font-size: .82rem; text-align: center; transition: .2s; }
+.layout-opt img { width: 100%; aspect-ratio: 4/3; object-fit: contain; border-radius: 6px; background: #fff; }
+.layout-opt input:checked + span { border-color: transparent; background: linear-gradient(#fff, #fff) padding-box, var(--grad) border-box; box-shadow: 0 6px 18px rgba(17,112,210,.12); }
+.layout-opt input:focus-visible + span { outline: 3px solid var(--teal); outline-offset: 2px; }
