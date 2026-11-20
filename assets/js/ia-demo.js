@@ -11,6 +11,8 @@
   var MAX_SIDE = 1536;
 
   // Parámetros definidos por Inspira (ver "Parametros para IA INSPIRA ESTUDIO.pdf")
+  // Hoy solo "cocina" está activa en el formulario (meta 80 % cocinas). Los demás
+  // espacios ya tienen su prompt listo: basta con agregar su opción en el HTML.
   var ROOMS = {
     cocina: "kitchen",
     sala: "living room",
@@ -130,16 +132,27 @@
   });
   upload.addEventListener("drop", function (e) { if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
 
-  // Campos condicionales: mostrar opciones de cocina solo cuando se selecciona cocina
-  var cocinaBlocks = document.querySelectorAll(".ia-cocina-only");
+  // Campos condicionales: cada bloque declara en data-rooms a qué espacios aplica
+  // (sin data-rooms = todos). Para sumar un espacio: agregar su opción "room" en el HTML,
+  // su prompt en ROOMS y marcar con data-rooms los bloques que le correspondan.
   var roomRadios = document.querySelectorAll('input[name="room"]');
-  function updateCocinaFields() {
-    var sel = $('input[name="room"]:checked');
-    var show = sel && sel.value === "cocina";
-    for (var ci = 0; ci < cocinaBlocks.length; ci++) cocinaBlocks[ci].hidden = !show;
+  var roomPicker = $("[data-room-picker]");
+  function updateRoomFields() {
+    var room = ($('input[name="room"]:checked') || {}).value;
+    document.querySelectorAll("[data-rooms]").forEach(function (el) {
+      el.hidden = el.getAttribute("data-rooms").split(" ").indexOf(room) < 0;
+    });
+    // con un solo espacio disponible, el selector no aporta: se oculta
+    if (roomPicker) roomPicker.hidden = roomRadios.length < 2;
+    // numeración de pasos visibles
+    var n = 0;
+    document.querySelectorAll(".ia-panel > .ia-block").forEach(function (b) {
+      var num = b.querySelector(".ia-num");
+      if (num && !b.hidden) num.textContent = ++n + " · ";
+    });
   }
-  for (var ri = 0; ri < roomRadios.length; ri++) roomRadios[ri].addEventListener("change", updateCocinaFields);
-  updateCocinaFields();
+  roomRadios.forEach(function (r) { r.addEventListener("change", updateRoomFields); });
+  updateRoomFields();
 
   // Paso 1: verificar que la foto sea un ambiente interior
   function isInterior(dataUrl) {
@@ -237,9 +250,12 @@
         });
       });
     }).then(function (img) {
+      loadingText.textContent = "Preparando tu propuesta…";
+      return watermark(img.src);
+    }).then(function (marked) {
       $("#ia-before").src = original.dataUrl;
-      $("#ia-after").src = img.src;
-      $("#ia-download").dataset.src = img.src;
+      $("#ia-after").src = marked;
+      $("#ia-download").dataset.src = marked;
       $("#ia-wa").href = "https://wa.me/51982219856?text=" + encodeURIComponent(
         "Hola Inspira 👋, probé el diseñador con IA de su web y me gustó esta propuesta:\n\n" +
         summary(o) + "\n\nQuisiera solicitar una evaluación.");
@@ -252,7 +268,8 @@
       show("placeholder");
       var code = (e && (e.code || (e.error && e.error.code))) || "";
       var text = String((e && (e.message || (e.error && e.error.message))) || "");
-      if (code === "not_interior") showError("Esta demo solo funciona con fotos de ambientes interiores (cocina, sala, comedor o baño). Prueba con otra foto.");
+      if (code === "not_interior") showError("Esta demo funciona con fotos de cocinas o ambientes interiores. Prueba con otra foto.");
+      else if (code === "watermark") showError("No pudimos preparar la vista previa de tu propuesta. Inténtalo nuevamente.");
       else if (/moderation|flagged/i.test(code + text)) showError("La imagen no pudo procesarse por los filtros de contenido. Prueba con otra foto de tu ambiente.");
       else if (/insufficient|funds|402/i.test(code + text)) showError("La cuenta de Puter no tiene saldo suficiente para generar la imagen.");
       else showError("No pudimos generar el diseño en este momento. Inténtalo nuevamente en unos segundos.");
@@ -260,16 +277,92 @@
     }).then(function () { btn.disabled = false; });
   });
 
-  // Descargar resultado
+  /* ---------- Protección de la propuesta (informe 2.5) ----------
+     - Vista previa en resolución media (máx. 1024 px) con marca de agua de Inspira.
+     - La descarga es esa misma imagen marcada; la versión limpia nunca se muestra.
+     - Clic derecho, arrastre y "guardar imagen" (pulsación larga en iOS) bloqueados.
+     Una captura de pantalla no se puede impedir desde una web: por eso la marca de agua. */
+  var PREVIEW_MAX = 1024;
+
+  function watermark(src) {
+    // fetch → blob → objectURL evita "ensuciar" el canvas con una imagen de otro dominio
+    return Promise.all([
+      fetch(src).then(function (r) { return r.blob(); }),
+      document.fonts && document.fonts.load ? document.fonts.load("800 40px Montserrat").catch(function () {}) : null
+    ]).then(function (res) {
+      return new Promise(function (resolve, reject) {
+        var url = URL.createObjectURL(res[0]);
+        var img = new Image();
+        img.onload = function () {
+          var k = Math.min(1, PREVIEW_MAX / Math.max(img.naturalWidth, img.naturalHeight));
+          var c = document.createElement("canvas");
+          var w = c.width = Math.round(img.naturalWidth * k);
+          var h = c.height = Math.round(img.naturalHeight * k);
+          var ctx = c.getContext("2d");
+          ctx.drawImage(img, 0, 0, w, h);
+          URL.revokeObjectURL(url);
+
+          // trama diagonal discreta en toda la imagen
+          var fs = Math.round(w / 16);
+          ctx.save();
+          ctx.translate(w / 2, h / 2);
+          ctx.rotate(-Math.PI / 7);
+          ctx.font = "800 " + fs + "px Montserrat, Arial, sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillStyle = "rgba(255,255,255,.16)";
+          ctx.strokeStyle = "rgba(0,0,0,.06)";
+          ctx.lineWidth = Math.max(1, fs / 30);
+          for (var y = -h; y <= h; y += fs * 3) {
+            for (var x = -w; x <= w; x += fs * 6) {
+              var off = (y / (fs * 3)) % 2 ? fs * 3 : 0;
+              ctx.fillText("INSPIRA", x + off, y);
+              ctx.strokeText("INSPIRA", x + off, y);
+            }
+          }
+          ctx.restore();
+
+          // sello con el logo en la esquina inferior derecha
+          var lf = Math.round(w / 22), pad = Math.round(lf * .55);
+          var subFont = "500 " + Math.round(lf * .36) + "px Montserrat, Arial, sans-serif";
+          ctx.font = subFont;
+          var sw = ctx.measureText("Estudio de interiorismo").width;
+          ctx.font = "800 " + lf + "px Montserrat, Arial, sans-serif";
+          var tw = ctx.measureText("Inspira").width;
+          var bw = Math.max(tw, sw) + pad * 2, bh = lf * 1.75 + pad;
+          var bx = w - bw - pad, by = h - bh - pad;
+          ctx.fillStyle = "rgba(255,255,255,.88)";
+          if (ctx.roundRect) { ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, lf * .3); ctx.fill(); } else ctx.fillRect(bx, by, bw, bh);
+          var g = ctx.createLinearGradient(bx + pad, 0, bx + pad + tw, 0);
+          g.addColorStop(0, "#0a63f0"); g.addColorStop(.55, "#0f8f95"); g.addColorStop(1, "#2bbd16");
+          ctx.fillStyle = g;
+          ctx.textAlign = "left";
+          ctx.textBaseline = "top";
+          ctx.fillText("Inspira", bx + pad, by + pad * .6);
+          ctx.fillStyle = "#151515";
+          ctx.font = subFont;
+          ctx.fillText("Estudio de interiorismo", bx + pad, by + pad * .6 + lf * 1.12);
+
+          try { resolve(c.toDataURL("image/jpeg", 0.86)); } catch (e) { reject({ code: "watermark" }); }
+        };
+        img.onerror = function () { URL.revokeObjectURL(url); reject({ code: "watermark" }); };
+        img.src = url;
+      });
+    }).catch(function (e) { throw (e && e.code) ? e : { code: "watermark" }; });
+  }
+
+  var protect = $(".ia-protect");
+  ["contextmenu", "dragstart"].forEach(function (ev) {
+    protect.addEventListener(ev, function (e) { if (e.target.tagName === "IMG") e.preventDefault(); });
+  });
+
+  // Descargar: siempre la versión con marca de agua
   $("#ia-download").addEventListener("click", function () {
-    var src = this.dataset.src;
-    fetch(src).then(function (r) { return r.blob(); }).then(function (blob) {
-      var a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "inspira-diseno-ia.png";
-      a.click();
-      setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
-    }).catch(function () { window.open(src, "_blank", "noopener"); });
+    var a = document.createElement("a");
+    a.href = this.dataset.src;
+    a.download = "inspira-propuesta-ia.jpg";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
   });
 
   $("#ia-again").addEventListener("click", function () {
