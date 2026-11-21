@@ -322,6 +322,33 @@
     reveals.forEach(function (r) { r.classList.add("is-visible"); });
   }
 
+  /* ---------- Contador de visitas ----------
+     Sitio estático: el total se guarda en Abacus (abacus.jasoncameron.dev).
+     Cada sesión del navegador suma 1 visita; el resto de páginas solo lee el total. */
+  (function () {
+    var bottom = $(".footer__bottom");
+    if (!bottom || !window.fetch) return;
+    var API = "https://abacus.jasoncameron.dev/";
+    var KEY = "inspira-estudio-web/visitas";
+    var FLAG = "inspira_visita";
+    var counted = false;
+    try { counted = sessionStorage.getItem(FLAG) === "1"; } catch (e) {}
+
+    fetch(API + (counted ? "get/" : "hit/") + KEY)
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+      .then(function (d) {
+        var n = Number(d && d.value);
+        if (!isFinite(n) || n < 0) return;
+        try { sessionStorage.setItem(FLAG, "1"); } catch (e) {}
+        var el = document.createElement("span");
+        el.className = "visitas";
+        el.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>' +
+          "<strong>" + n.toLocaleString("es-PE") + "</strong> " + (n === 1 ? "visita" : "visitas");
+        bottom.insertBefore(el, bottom.lastElementChild);
+      })
+      .catch(function () { /* sin conexión o servicio caído: no se muestra el contador */ });
+  })();
+
   /* ---------- Año del footer ---------- */
   $$("[data-year]").forEach(function (el) { el.textContent = new Date().getFullYear(); });
 })();

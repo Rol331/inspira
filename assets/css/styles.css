@@ -408,6 +408,9 @@ body.nav-open { overflow: hidden; }
 .socials svg { width: 19px; height: 19px; }
 .footer__bottom { margin-top: 56px; padding: 22px 0 96px; border-top: 1px solid rgba(255,255,255,.08); display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; font-size: .82rem; }
 @media (min-width: 768px) { .footer__bottom { padding-bottom: 22px; } }
+.visitas { display: inline-flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
+.visitas svg { width: 15px; height: 15px; opacity: .7; }
+.visitas strong { color: #fff; font-weight: 600; }
 
 /* ---------- WhatsApp flotante ---------- */
 .wa-float {
