@@ -262,7 +262,7 @@
       $(".ba__range").value = 50;
       $(".ba").style.setProperty("--pos", "50%");
       show("result");
-      if (window.innerWidth < 992) document.querySelector(".ia-stage").scrollIntoView({ behavior: "smooth", block: "start" });
+      document.querySelector(".ia-stage").scrollIntoView({ behavior: "smooth", block: "start" });
       if (typeof window.gtag === "function") window.gtag("event", "ia_design_generated", { room: room, style: style, color: o.color, finish: o.finish });
     }).catch(function (e) {
       show("placeholder");

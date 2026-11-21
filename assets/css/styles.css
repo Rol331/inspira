@@ -438,12 +438,17 @@ body.nav-open { overflow: hidden; }
 /* =========================================================
    Demo: Diseña tu espacio con IA
    ========================================================= */
-.ia-grid { display: grid; gap: 28px; align-items: start; }
-@media (min-width: 992px) { .ia-grid { grid-template-columns: 420px 1fr; gap: 40px; } }
-.ia-panel { background: #fff; border-radius: 20px; padding: 24px 20px; box-shadow: var(--shadow-lg); }
-@media (min-width: 768px) { .ia-panel { padding: 32px; } }
+/* Opciones en columnas arriba (pasos 1–6) y la generación del diseño debajo */
+.ia-grid { display: grid; gap: 28px; }
+.ia-panel { background: #fff; border-radius: 20px; padding: 24px 20px; box-shadow: var(--shadow-lg); display: grid; gap: 26px; align-items: start; }
+.ia-panel > :not(.ia-block) { grid-column: 1 / -1; }
+@media (min-width: 768px) { .ia-panel { padding: 32px; grid-template-columns: repeat(2, 1fr); gap: 28px 32px; } }
+@media (min-width: 1100px) { .ia-panel { grid-template-columns: repeat(3, 1fr); } }
+.ia-panel > #ia-generate { justify-self: center; width: 100%; max-width: 420px; }
+.ia-panel > .ia-msg, .ia-panel > .ia-disclaimer { text-align: center; margin: 0; }
 .ia-step { font-size: .72rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--teal); margin: 0 0 10px; }
-.ia-block + .ia-block { margin-top: 26px; }
+.ia-more .ia-block + .ia-block { margin-top: 20px; }
+.ia-stage { scroll-margin-top: calc(var(--header-h) + 16px); }
 .ia-upload { position: relative; display: block; border: 2px dashed var(--gray-100); border-radius: 14px; overflow: hidden; cursor: pointer; transition: border-color .2s, background .2s; background: var(--gray-50); }
 .ia-upload:hover, .ia-upload.is-drag { border-color: var(--teal); background: rgba(56,142,148,.05); }
 .ia-upload input { position: absolute; opacity: 0; width: 1px; height: 1px; }
@@ -491,7 +496,8 @@ body.nav-open { overflow: hidden; }
 .ia-hint { font-size: .82rem; color: var(--gray-600); margin: -4px 0 10px; }
 .layout-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
 @media (min-width: 420px) { .layout-grid { grid-template-columns: repeat(3, 1fr); } }
-@media (min-width: 992px) { .layout-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 768px) { .layout-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1100px) { .layout-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; } .layout-opt span { padding: 6px 6px 8px; font-size: .76rem; } }
 .layout-opt input { position: absolute; opacity: 0; pointer-events: none; }
 .layout-opt span { display: flex; flex-direction: column; gap: 6px; height: 100%; padding: 8px 8px 10px; border-radius: 12px; border: 1.5px solid var(--gray-100); background: #fff; cursor: pointer; font-weight: 700; font-size: .82rem; text-align: center; transition: .2s; }
 .layout-opt img { width: 100%; aspect-ratio: 4/3; object-fit: contain; border-radius: 6px; background: #fff; }
@@ -506,13 +512,12 @@ body.nav-open { overflow: hidden; }
 .ia-flow strong { display: block; font-size: 1rem; }
 .ia-flow p { margin: 2px 0 0; font-size: .86rem; color: var(--gray-600); line-height: 1.5; }
 @media (min-width: 768px) { .ia-flow li:not(:last-child)::after { content: "→"; position: absolute; right: -14px; top: 50%; transform: translateY(-50%); color: var(--teal); font-weight: 800; z-index: 1; } }
-.ia-more { margin-top: 26px; border: 1.5px solid var(--gray-100); border-radius: 14px; padding: 0 16px; }
+.ia-more { margin-top: 0; border: 1.5px solid var(--gray-100); border-radius: 14px; padding: 0 16px; }
 .ia-more[open] { padding-bottom: 16px; }
 .ia-more summary { cursor: pointer; list-style: none; padding: 14px 0; font-weight: 700; font-size: .92rem; display: flex; justify-content: space-between; align-items: center; }
 .ia-more summary::-webkit-details-marker { display: none; }
 .ia-more summary::after { content: "+"; font-size: 1.3rem; color: var(--teal); line-height: 1; }
 .ia-more[open] summary::after { content: "–"; }
 .ia-more summary small { color: var(--gray-400); font-weight: 500; margin-left: 4px; margin-right: auto; }
-.ia-more .ia-block + .ia-block { margin-top: 20px; }
 .ia-subtitle { font-size: .72rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--teal); margin: 0 0 10px; }
 .ia-protect img { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-user-drag: none; }
