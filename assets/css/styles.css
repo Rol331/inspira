@@ -108,14 +108,10 @@ ul { margin: 0; padding: 0; list-style: none; }
 .link-arrow:hover::after { transform: translateX(4px); }
 
 /* ---------- Logo ---------- */
-.logo { display: inline-flex; flex-direction: column; line-height: 1; }
-.logo__name {
-  font-weight: 800; font-size: 1.85rem; letter-spacing: -.02em;
-  background: linear-gradient(90deg, #0a63f0, #0f8f95 55%, #2bbd16);
-  -webkit-background-clip: text; background-clip: text; color: transparent;
-}
-.logo__tag { font-size: .62rem; letter-spacing: .04em; color: var(--ink); border-top: 1px solid var(--ink); padding-top: 3px; margin-top: 3px; }
-.logo--light .logo__tag { color: #dfe6e4; border-color: #dfe6e4; }
+.logo { display: inline-flex; align-items: center; line-height: 1; }
+.logo__img { height: 44px; width: auto; display: block; }
+.footer .logo__img { height: 56px; }
+@media (min-width: 992px) { .logo__img { height: 50px; } }
 
 /* ---------- Header / Navbar (sticky) ---------- */
 .header {
