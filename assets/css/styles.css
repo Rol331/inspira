@@ -441,14 +441,29 @@ body.nav-open { overflow: hidden; }
 /* =========================================================
    Demo: Diseña tu espacio con IA
    ========================================================= */
-/* Opciones en columnas arriba (pasos 1–6) y la generación del diseño debajo */
+/* Pasos en una columna, cada uno como acordeón; la generación del diseño debajo */
 .ia-grid { display: grid; gap: 28px; }
-.ia-panel { background: #fff; border-radius: 20px; padding: 24px 20px; box-shadow: var(--shadow-lg); display: grid; gap: 26px; align-items: start; }
-.ia-panel > :not(.ia-block) { grid-column: 1 / -1; }
-@media (min-width: 768px) { .ia-panel { padding: 32px; grid-template-columns: repeat(2, 1fr); gap: 28px 32px; } }
-@media (min-width: 1100px) { .ia-panel { grid-template-columns: repeat(3, 1fr); } }
-.ia-panel > #ia-generate { justify-self: center; width: 100%; max-width: 420px; }
+.ia-panel { width: 100%; max-width: 860px; margin: 0 auto; background: #fff; border-radius: 20px; padding: 16px; box-shadow: var(--shadow-lg); display: grid; gap: 10px; }
+@media (min-width: 768px) { .ia-panel { padding: 24px; } }
+.ia-panel > #ia-generate { justify-self: center; width: 100%; max-width: 420px; margin-top: 10px; }
 .ia-panel > .ia-msg, .ia-panel > .ia-disclaimer { text-align: center; margin: 0; }
+
+/* Acordeón de pasos (se arma en ia-demo.js a partir de cada .ia-block) */
+.ia-acc { border: 1.5px solid var(--gray-100); border-radius: 14px; background: #fff; transition: border-color .25s, box-shadow .25s; scroll-margin-top: calc(var(--header-h) + 16px); }
+.ia-acc.is-open { border-color: transparent; background: linear-gradient(#fff, #fff) padding-box, var(--grad) border-box; box-shadow: 0 10px 28px rgba(17,112,210,.10); }
+.ia-acc__head { width: 100%; display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: none; border: 0; cursor: pointer; text-align: left; border-radius: 14px; }
+.ia-acc__head .ia-step { margin: 0; flex: none; }
+.ia-acc__value { flex: 1; min-width: 0; text-align: right; font-size: .85rem; font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ia-acc__check { flex: none; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--gray-100); color: transparent; font-size: .72rem; font-weight: 800; transition: .25s; }
+.ia-acc.is-done .ia-acc__check { background: var(--green); color: #fff; }
+.ia-acc__chev { flex: none; width: 18px; height: 18px; color: var(--gray-400); transition: transform .3s var(--ease); }
+.ia-acc.is-open .ia-acc__chev { transform: rotate(180deg); color: var(--teal); }
+.ia-acc.is-open .ia-acc__value { visibility: hidden; }
+.ia-acc__body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .35s var(--ease); }
+.ia-acc.is-open .ia-acc__body { grid-template-rows: 1fr; }
+.ia-acc__inner { overflow: hidden; min-height: 0; }
+.ia-acc__inner > :first-child { margin-top: 0; }
+.ia-acc__pad { padding: 2px 16px 18px; }
 .ia-step { font-size: .72rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--teal); margin: 0 0 10px; }
 .ia-more .ia-block + .ia-block { margin-top: 20px; }
 .ia-stage { scroll-margin-top: calc(var(--header-h) + 16px); }
@@ -460,6 +475,7 @@ body.nav-open { overflow: hidden; }
 .ia-upload img { width: 100%; max-height: 260px; object-fit: cover; }
 .ia-upload__change { position: absolute; right: 10px; bottom: 10px; background: rgba(10,18,22,.75); color: #fff; font-size: .8rem; font-weight: 600; padding: 6px 12px; border-radius: 999px; }
 .style-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+@media (min-width: 768px) { .ia-panel .style-grid { grid-template-columns: repeat(3, 1fr); } }
 .style-opt input { position: absolute; opacity: 0; pointer-events: none; }
 .style-opt span { display: block; height: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid var(--gray-100); background: var(--gray-50); cursor: pointer; transition: .2s; font-weight: 700; font-size: .9rem; line-height: 1.3; }
 .style-opt small { display: block; font-weight: 500; font-size: .75rem; color: var(--gray-600); margin-top: 2px; }
@@ -480,9 +496,6 @@ body.nav-open { overflow: hidden; }
 .ia-result .ba img:first-child { position: relative; height: auto; }
 .ia-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
 .ia-disclaimer { font-size: .8rem; color: var(--gray-400); margin-top: 14px; }
-.ia-cocina-only[hidden] { display: none; }
-.ia-cocina-only { animation: fadeSlideIn .3s ease; }
-@keyframes fadeSlideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
 .demo-tag { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.35); color: #fff; font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; padding: 5px 12px; border-radius: 999px; margin-bottom: 14px; }
 
 /* Enlace "Diseña con IA" en el menú */
@@ -499,8 +512,7 @@ body.nav-open { overflow: hidden; }
 .ia-hint { font-size: .82rem; color: var(--gray-600); margin: -4px 0 10px; }
 .layout-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
 @media (min-width: 420px) { .layout-grid { grid-template-columns: repeat(3, 1fr); } }
-@media (min-width: 768px) { .layout-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (min-width: 1100px) { .layout-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; } .layout-opt span { padding: 6px 6px 8px; font-size: .76rem; } }
+@media (min-width: 768px) { .layout-grid { grid-template-columns: repeat(4, 1fr); } }
 .layout-opt input { position: absolute; opacity: 0; pointer-events: none; }
 .layout-opt span { display: flex; flex-direction: column; gap: 6px; height: 100%; padding: 8px 8px 10px; border-radius: 12px; border: 1.5px solid var(--gray-100); background: #fff; cursor: pointer; font-weight: 700; font-size: .82rem; text-align: center; transition: .2s; }
 .layout-opt img { width: 100%; aspect-ratio: 4/3; object-fit: contain; border-radius: 6px; background: #fff; }
@@ -519,8 +531,8 @@ body.nav-open { overflow: hidden; }
 .ia-more[open] { padding-bottom: 16px; }
 .ia-more summary { cursor: pointer; list-style: none; padding: 14px 0; font-weight: 700; font-size: .92rem; display: flex; justify-content: space-between; align-items: center; }
 .ia-more summary::-webkit-details-marker { display: none; }
-.ia-more summary::after { content: "+"; font-size: 1.3rem; color: var(--teal); line-height: 1; }
-.ia-more[open] summary::after { content: "–"; }
+.ia-more summary::after { content: ""; width: 8px; height: 8px; margin-right: 5px; border-right: 2.5px solid var(--gray-400); border-bottom: 2.5px solid var(--gray-400); transform: translateY(-3px) rotate(45deg); transition: transform .3s var(--ease); }
+.ia-more[open] summary::after { transform: translateY(2px) rotate(-135deg); border-color: var(--teal); }
 .ia-more summary small { color: var(--gray-400); font-weight: 500; margin-left: 4px; margin-right: auto; }
 .ia-subtitle { font-size: .72rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--teal); margin: 0 0 10px; }
 .ia-protect img { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-user-drag: none; }

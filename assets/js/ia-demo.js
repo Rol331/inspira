@@ -120,6 +120,12 @@
       $(".ia-upload__empty").hidden = true;
       preview.hidden = false;
       $(".ia-upload__change").hidden = false;
+      var photoStep = stepWith("#ia-file");
+      if (photoStep) {
+        refreshValue(photoStep);
+        photoStep.classList.add("is-done");
+        setTimeout(function () { nextStep(photoStep); }, 450);
+      }
     }).catch(function (e) { showError(e.message); });
   }
 
@@ -152,7 +158,95 @@
     });
   }
   roomRadios.forEach(function (r) { r.addEventListener("change", updateRoomFields); });
+
+  /* ---------- Acordeón de pasos ----------
+     Cada .ia-block del panel se convierte en un paso plegable: el primero empieza
+     abierto y, al completar uno (subir la foto o elegir una opción), se cierra y se
+     abre el siguiente visible. La cabecera muestra lo elegido y un check. */
+  var CHEV = '<svg class="ia-acc__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+  var steps = Array.prototype.slice.call(document.querySelectorAll(".ia-panel > .ia-block"));
+
+  steps.forEach(function (b, i) {
+    var title = b.querySelector(".ia-step");
+    var head = document.createElement("button");
+    head.type = "button";
+    head.className = "ia-acc__head";
+    head.id = "ia-acc-h" + i;
+    head.setAttribute("aria-controls", "ia-acc-b" + i);
+    head.appendChild(title);
+    head.insertAdjacentHTML("beforeend", '<span class="ia-acc__value"></span><span class="ia-acc__check" aria-hidden="true">✓</span>' + CHEV);
+
+    var body = document.createElement("div");
+    body.className = "ia-acc__body";
+    body.id = "ia-acc-b" + i;
+    body.setAttribute("role", "region");
+    body.setAttribute("aria-labelledby", head.id);
+    var inner = document.createElement("div");
+    inner.className = "ia-acc__inner";
+    var pad = document.createElement("div");
+    pad.className = "ia-acc__pad";
+    while (b.firstChild) pad.appendChild(b.firstChild);
+    inner.appendChild(pad);
+    body.appendChild(inner);
+
+    b.classList.add("ia-acc");
+    b.appendChild(head);
+    b.appendChild(body);
+    head.addEventListener("click", function () { b.classList.contains("is-open") ? closeStep(b) : openStep(b); });
+
+    // elegir una opción completa el paso y avanza al siguiente
+    function complete() {
+      refreshValue(b);
+      b.classList.add("is-done");
+      setTimeout(function () { nextStep(b); }, 280);
+    }
+    b.addEventListener("change", function (e) { if (e.target.type === "radio") complete(); });
+    // tocar la opción que ya venía marcada (no dispara "change") también confirma el paso
+    var wasChecked = false;
+    b.addEventListener("pointerdown", function (e) {
+      var label = e.target.closest("label");
+      var input = label && label.querySelector("input[type=radio]");
+      wasChecked = !!(input && input.checked);
+    });
+    b.addEventListener("click", function (e) {
+      if (wasChecked && e.target.type === "radio") { wasChecked = false; complete(); }
+    });
+    refreshValue(b);
+  });
+
+  function refreshValue(b) {
+    var v = b.querySelector(".ia-acc__value");
+    var checked = b.querySelector("input[type=radio]:checked");
+    if (checked) v.textContent = checked.dataset.label;
+    else if (b.contains(fileInput)) v.textContent = original ? "Foto cargada" : "Pendiente";
+  }
+  function setOpen(b, open) {
+    b.classList.toggle("is-open", open);
+    b.querySelector(".ia-acc__head").setAttribute("aria-expanded", String(open));
+    var body = b.querySelector(".ia-acc__body");
+    if (open) body.removeAttribute("inert"); else body.setAttribute("inert", "");
+  }
+  function openStep(b, scroll) {
+    steps.forEach(function (s) { setOpen(s, s === b); });
+    if (scroll) {
+      var r = b.getBoundingClientRect();
+      if (r.top < 80 || r.top > window.innerHeight * 0.6) b.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+  function closeStep(b) { setOpen(b, false); }
+  function nextStep(b) {
+    var visible = steps.filter(function (s) { return !s.hidden; });
+    var next = visible[visible.indexOf(b) + 1];
+    if (next) openStep(next, true);
+    else { closeStep(b); btn.scrollIntoView({ behavior: "smooth", block: "center" }); }
+  }
+  function stepWith(selector) {
+    return steps.filter(function (s) { return s.querySelector(selector); })[0];
+  }
+
   updateRoomFields();
+  var firstStep = steps.filter(function (s) { return !s.hidden; })[0];
+  steps.forEach(function (s) { setOpen(s, s === firstStep); });
 
   // Paso 1: verificar que la foto sea un ambiente interior
   function isInterior(dataUrl) {
@@ -227,7 +321,10 @@
       var v = sel(k); o[k] = v.value; o.labels[k] = v.label;
     });
     var room = o.room, style = o.style;
-    if (!original) return showError("Primero sube una foto de tu ambiente.");
+    if (!original) {
+      openStep(stepWith("#ia-file"), true);
+      return showError("Primero sube una foto de tu cocina.");
+    }
     if (!room || !style) return showError("Elige el tipo de ambiente y un estilo.");
     if (typeof puter === "undefined") return showError("No se pudo cargar el servicio de IA. Revisa tu conexión y recarga la página.");
 
@@ -365,8 +462,10 @@
     a.remove();
   });
 
+  // "Probar otro estilo": vuelve al paso Estilo con el resto de elecciones intactas
   $("#ia-again").addEventListener("click", function () {
     show("placeholder");
-    document.querySelector(".ia-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+    var styleStep = stepWith('input[name="style"]');
+    if (styleStep) { openStep(styleStep); styleStep.scrollIntoView({ behavior: "smooth", block: "start" }); }
   });
 })();
